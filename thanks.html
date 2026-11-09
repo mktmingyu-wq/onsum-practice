@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주문 완료 | ONSUM 온숨</title>
+<meta name="robots" content="noindex">
+<script src="/track.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .done{min-height:80vh;display:grid;place-items:center;padding:40px 20px}
+  .receipt{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:36px 30px;max-width:460px;width:100%;text-align:center}
+  .check{width:64px;height:64px;border-radius:50%;background:var(--mint-soft);color:var(--mint);display:grid;place-items:center;font-size:30px;margin:0 auto 18px}
+  .receipt h1{font-size:28px;margin-bottom:6px}
+  .receipt .sub{color:var(--sub)}
+  .rows{margin:26px 0;text-align:left;border-top:1px dashed var(--line)}
+  .rows div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .rows span{color:var(--sub)}
+  .receipt .fine{font-size:12px;color:#9aa5a1;margin-top:14px}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><a class="logo" href="/">ONSUM<small>온숨</small></a></div></nav>
+
+<main class="done">
+  <div class="receipt">
+    <div class="check">✓</div>
+    <h1 class="serif">주문이 완료됐어요</h1>
+    <p class="sub">내일 도착 예정이에요. 피부가 식는 3초를 기대해 주세요.</p>
+    <div class="rows" id="rows"></div>
+    <a class="btn btn-primary" href="/" id="thanks-home" style="display:block;text-decoration:none">계속 둘러보기</a>
+    <p class="fine">연습용 페이지예요. 실제 주문·결제는 일어나지 않았어요.</p>
+  </div>
+</main>
+
+<script>
+var PRODUCTS = {
+  single: { item_id: 'ONS-50',  item_name: '온숨 진정 수분크림 50ml',      price: 28000 },
+  duo:    { item_id: 'ONS-50x2',item_name: '온숨 진정 수분크림 듀오 50ml×2', price: 49000 },
+  big:    { item_id: 'ONS-100', item_name: '온숨 진정 수분크림 100ml',      price: 46000 }
+};
+var order = null;
+try { order = JSON.parse(sessionStorage.getItem('onsum_order') || 'null'); } catch (e) {}
+if (!order) order = { id: new URLSearchParams(location.search).get('order') || 'T-DEMO', key: 'single', qty: 1, value: 28000 };
+var p = PRODUCTS[order.key];
+
+document.getElementById('rows').innerHTML =
+  '<div><span>주문번호</span><b>' + order.id + '</b></div>' +
+  '<div><span>상품</span><b>' + p.item_name + ' × ' + order.qty + '</b></div>' +
+  '<div><span>결제금액</span><b>' + order.value.toLocaleString('ko-KR') + '원</b></div>';
+
+/* 구매 완료: 같은 주문번호로 두 번 잡히지 않게 한 번만 push */
+var sentKey = 'onsum_sent_' + order.id, sent = false;
+try { sent = sessionStorage.getItem(sentKey) === '1'; } catch (e) {}
+if (!sent) {
+  dataLayer.push({ ecommerce: null });
+  dataLayer.push({
+    event: 'purchase',
+    ecommerce: {
+      transaction_id: order.id, currency: 'KRW', value: order.value, shipping: 0,
+      items: [{ item_id: p.item_id, item_name: p.item_name, item_brand: 'ONSUM', item_category: '스킨케어', item_variant: order.key, price: p.price, quantity: order.qty }]
+    }
+  });
+  try { sessionStorage.setItem(sentKey, '1'); } catch (e) {}
+}
+</script>
+</body>
+</html>
