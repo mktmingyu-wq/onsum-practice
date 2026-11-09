@@ -5,8 +5,7 @@
    ============================================================ */
 
 // ▼▼ 여기에 본인 GTM 컨테이너 ID를 넣으면 GTM이 켜집니다 ▼▼
-var GTM_ID = 'GTM-XXXXXXX';
-
+var GTM_ID = 'GTM-TWHVX4H8';
 window.dataLayer = window.dataLayer || [];
 
 (function installGTM() {
